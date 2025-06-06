@@ -1,0 +1,33 @@
+{
+  "annotations": {
+    "changelogDate": "20250606082428"
+  },
+  "applications": "*",
+  "clientRootFolder": "microservicePersonalInformation",
+  "databaseType": "sql",
+  "documentation": "规范流程。",
+  "dto": "mapstruct",
+  "fields": [
+    {
+      "fieldName": "isActive",
+      "fieldType": "Boolean",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "specification",
+      "fieldType": "TextBlob",
+      "fieldValidateRules": ["required"]
+    },
+    {
+      "fieldName": "userLogin",
+      "fieldType": "String",
+      "fieldValidateRules": ["required"]
+    }
+  ],
+  "microserviceName": "microservicePersonalInformation",
+  "name": "StandardProcedures",
+  "pagination": "pagination",
+  "relationships": [],
+  "searchEngine": "no",
+  "service": "serviceImpl"
+}
