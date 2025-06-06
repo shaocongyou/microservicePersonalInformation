@@ -1,0 +1,19 @@
+/**
+ * 规范流程。
+ */
+entity StandardProcedures {
+  isActive Boolean required,
+  specification TextBlob required,
+  userLogin String required  // 直接存储用户登录名
+}
+
+// 不使用关系，改为存储字段
+// 不应该直接引用User实体
+// relationship ManyToOne {
+//   StandardProcedures{user(login)} to User with builtInEntity,
+// }
+
+dto * with mapstruct
+service * with serviceImpl
+paginate * with pagination
+microservice * with microservicePersonalInformation
