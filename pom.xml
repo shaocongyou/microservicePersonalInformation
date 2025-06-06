@@ -547,7 +547,9 @@
                             <include>**/*IT*</include>
                             <include>**/*IntTest*</include>
                         </includes>
-                        <argLine>@{argLine} -Dspring.profiles.active=${profile.test}</argLine>
+                        <argLine>@{argLine} -Dspring.profiles.active=${profile.test} -Djdk.net.URLClassPath.disableClassPathURLCheck=true</argLine>
+                        <useSystemClassLoader>false</useSystemClassLoader>
+                        <useManifestOnlyJar>false</useManifestOnlyJar>
                     </configuration>
                     <executions>
                         <execution>
@@ -889,7 +891,7 @@
         <profile>
             <id>docker-compose</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <dependencies>
                 <dependency>
