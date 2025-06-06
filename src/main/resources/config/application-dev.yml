@@ -59,9 +59,9 @@ spring:
       port: 8500
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/microservicePersonalInformation?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/microservicePersonalInformation?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true
     username: root
-    password:
+    password: mysql_password_123
     hikari:
       poolName: Hikari
       auto-commit: false
