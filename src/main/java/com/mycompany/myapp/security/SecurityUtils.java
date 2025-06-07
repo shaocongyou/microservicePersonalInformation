@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 /**
@@ -34,6 +35,52 @@ public final class SecurityUtils {
     public static Optional<String> getCurrentUserLogin() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         return Optional.ofNullable(extractPrincipal(securityContext.getAuthentication()));
+    }
+
+    /**
+     * Get the UUID of the current user from JWT token.
+     * This method tries to get the UUID from JWT token's 'sub' claim first,
+     * then falls back to 'user_id' claim, and finally to username.
+     *
+     * @return the UUID of the current user.
+     */
+    public static Optional<String> getCurrentUserUuid() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(extractUserId(securityContext.getAuthentication()));
+    }
+
+    /**
+     * Extract user ID (UUID) from authentication object.
+     * This method tries to get the UUID from JWT token's 'sub' claim first,
+     * then falls back to 'user_id' claim, and finally to username.
+     *
+     * @param authentication the authentication object
+     * @return the user UUID or username as fallback, null if no authentication
+     */
+    private static String extractUserId(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        }
+
+        if (authentication instanceof JwtAuthenticationToken) {
+            JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
+            Jwt jwt = jwtAuth.getToken();
+
+            // 尝试从JWT中获取用户ID (通常在sub字段)
+            String sub = jwt.getClaimAsString("sub");
+            if (sub != null && !sub.isEmpty()) {
+                return sub;
+            }
+
+            // 尝试其他可能包含用户ID的字段
+            String userId = jwt.getClaimAsString("user_id");
+            if (userId != null && !userId.isEmpty()) {
+                return userId;
+            }
+        }
+
+        // 回退到用户名
+        return authentication.getName();
     }
 
     private static String extractPrincipal(Authentication authentication) {
