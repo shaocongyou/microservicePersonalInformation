@@ -1,4 +1,4 @@
-id;is_active;specification;user_login
+id;is_active;specification;user_uuid
 1;true;../fake-data/blob/hipster.txt;pressure bore starch
 2;true;../fake-data/blob/hipster.txt;sternly
 3;false;../fake-data/blob/hipster.txt;knowledgeably tattered
