@@ -4,7 +4,6 @@
 entity StandardProcedures {
   isActive Boolean required,
   specification TextBlob required,
-  userLogin String required  // 直接存储用户登录名
   userUUID String required  // 直接存储用户UUID
 }
 
