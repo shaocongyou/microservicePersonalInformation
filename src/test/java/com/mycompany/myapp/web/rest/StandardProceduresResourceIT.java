@@ -41,8 +41,8 @@ class StandardProceduresResourceIT {
     private static final String DEFAULT_SPECIFICATION = "AAAAAAAAAA";
     private static final String UPDATED_SPECIFICATION = "BBBBBBBBBB";
 
-    private static final String DEFAULT_USER_LOGIN = "AAAAAAAAAA";
-    private static final String UPDATED_USER_LOGIN = "BBBBBBBBBB";
+    private static final String DEFAULT_USER_UUID = "AAAAAAAAAA";
+    private static final String UPDATED_USER_UUID = "BBBBBBBBBB";
 
     private static final String ENTITY_API_URL = "/api/standard-procedures";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
@@ -76,7 +76,7 @@ class StandardProceduresResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static StandardProcedures createEntity() {
-        return new StandardProcedures().isActive(DEFAULT_IS_ACTIVE).specification(DEFAULT_SPECIFICATION).userLogin(DEFAULT_USER_LOGIN);
+        return new StandardProcedures().isActive(DEFAULT_IS_ACTIVE).specification(DEFAULT_SPECIFICATION).userUUID(DEFAULT_USER_UUID);
     }
 
     /**
@@ -86,7 +86,7 @@ class StandardProceduresResourceIT {
      * if they test an entity which requires the current entity.
      */
     public static StandardProcedures createUpdatedEntity() {
-        return new StandardProcedures().isActive(UPDATED_IS_ACTIVE).specification(UPDATED_SPECIFICATION).userLogin(UPDATED_USER_LOGIN);
+        return new StandardProcedures().isActive(UPDATED_IS_ACTIVE).specification(UPDATED_SPECIFICATION).userUUID(UPDATED_USER_UUID);
     }
 
     @BeforeEach
@@ -181,10 +181,10 @@ class StandardProceduresResourceIT {
 
     @Test
     @Transactional
-    void checkUserLoginIsRequired() throws Exception {
+    void checkUserUUIDIsRequired() throws Exception {
         long databaseSizeBeforeTest = getRepositoryCount();
         // set the field null
-        standardProcedures.setUserLogin(null);
+        standardProcedures.setUserUUID(null);
 
         // Create the StandardProcedures, which fails.
         StandardProceduresDTO standardProceduresDTO = standardProceduresMapper.toDto(standardProcedures);
@@ -215,7 +215,7 @@ class StandardProceduresResourceIT {
             .andExpect(jsonPath("$.[*].id").value(hasItem(standardProcedures.getId().intValue())))
             .andExpect(jsonPath("$.[*].isActive").value(hasItem(DEFAULT_IS_ACTIVE)))
             .andExpect(jsonPath("$.[*].specification").value(hasItem(DEFAULT_SPECIFICATION)))
-            .andExpect(jsonPath("$.[*].userLogin").value(hasItem(DEFAULT_USER_LOGIN)));
+            .andExpect(jsonPath("$.[*].userUUID").value(hasItem(DEFAULT_USER_UUID)));
     }
 
     @Test
@@ -232,7 +232,7 @@ class StandardProceduresResourceIT {
             .andExpect(jsonPath("$.id").value(standardProcedures.getId().intValue()))
             .andExpect(jsonPath("$.isActive").value(DEFAULT_IS_ACTIVE))
             .andExpect(jsonPath("$.specification").value(DEFAULT_SPECIFICATION))
-            .andExpect(jsonPath("$.userLogin").value(DEFAULT_USER_LOGIN));
+            .andExpect(jsonPath("$.userUUID").value(DEFAULT_USER_UUID));
     }
 
     @Test
@@ -254,7 +254,7 @@ class StandardProceduresResourceIT {
         StandardProcedures updatedStandardProcedures = standardProceduresRepository.findById(standardProcedures.getId()).orElseThrow();
         // Disconnect from session so that the updates on updatedStandardProcedures are not directly saved in db
         em.detach(updatedStandardProcedures);
-        updatedStandardProcedures.isActive(UPDATED_IS_ACTIVE).specification(UPDATED_SPECIFICATION).userLogin(UPDATED_USER_LOGIN);
+        updatedStandardProcedures.isActive(UPDATED_IS_ACTIVE).specification(UPDATED_SPECIFICATION).userUUID(UPDATED_USER_UUID);
         StandardProceduresDTO standardProceduresDTO = standardProceduresMapper.toDto(updatedStandardProcedures);
 
         restStandardProceduresMockMvc
@@ -384,7 +384,7 @@ class StandardProceduresResourceIT {
         StandardProcedures partialUpdatedStandardProcedures = new StandardProcedures();
         partialUpdatedStandardProcedures.setId(standardProcedures.getId());
 
-        partialUpdatedStandardProcedures.isActive(UPDATED_IS_ACTIVE).specification(UPDATED_SPECIFICATION).userLogin(UPDATED_USER_LOGIN);
+        partialUpdatedStandardProcedures.isActive(UPDATED_IS_ACTIVE).specification(UPDATED_SPECIFICATION).userUUID(UPDATED_USER_UUID);
 
         restStandardProceduresMockMvc
             .perform(

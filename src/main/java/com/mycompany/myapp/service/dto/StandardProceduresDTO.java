@@ -22,7 +22,7 @@ public class StandardProceduresDTO implements Serializable {
     private String specification;
 
     @NotNull
-    private String userLogin;
+    private String userUUID;
 
     public Long getId() {
         return id;
@@ -48,12 +48,12 @@ public class StandardProceduresDTO implements Serializable {
         this.specification = specification;
     }
 
-    public String getUserLogin() {
-        return userLogin;
+    public String getUserUUID() {
+        return userUUID;
     }
 
-    public void setUserLogin(String userLogin) {
-        this.userLogin = userLogin;
+    public void setUserUUID(String userUUID) {
+        this.userUUID = userUUID;
     }
 
     @Override
@@ -84,7 +84,7 @@ public class StandardProceduresDTO implements Serializable {
             "id=" + getId() +
             ", isActive='" + getIsActive() + "'" +
             ", specification='" + getSpecification() + "'" +
-            ", userLogin='" + getUserLogin() + "'" +
+            ", userUUID='" + getUserUUID() + "'" +
             "}";
     }
 }

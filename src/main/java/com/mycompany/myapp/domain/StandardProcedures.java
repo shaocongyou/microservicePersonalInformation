@@ -31,8 +31,8 @@ public class StandardProcedures implements Serializable {
     private String specification;
 
     @NotNull
-    @Column(name = "user_login", nullable = false)
-    private String userLogin;
+    @Column(name = "user_uuid", nullable = false)
+    private String userUUID;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -75,17 +75,17 @@ public class StandardProcedures implements Serializable {
         this.specification = specification;
     }
 
-    public String getUserLogin() {
-        return this.userLogin;
+    public String getUserUUID() {
+        return this.userUUID;
     }
 
-    public StandardProcedures userLogin(String userLogin) {
-        this.setUserLogin(userLogin);
+    public StandardProcedures userUUID(String userUUID) {
+        this.setUserUUID(userUUID);
         return this;
     }
 
-    public void setUserLogin(String userLogin) {
-        this.userLogin = userLogin;
+    public void setUserUUID(String userUUID) {
+        this.userUUID = userUUID;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
@@ -114,7 +114,7 @@ public class StandardProcedures implements Serializable {
             "id=" + getId() +
             ", isActive='" + getIsActive() + "'" +
             ", specification='" + getSpecification() + "'" +
-            ", userLogin='" + getUserLogin() + "'" +
+            ", userUUID='" + getUserUUID() + "'" +
             "}";
     }
 }

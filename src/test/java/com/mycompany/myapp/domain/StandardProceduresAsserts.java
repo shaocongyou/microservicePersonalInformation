@@ -49,7 +49,7 @@ public class StandardProceduresAsserts {
             .as("Verify StandardProcedures relevant properties")
             .satisfies(a -> assertThat(a.getIsActive()).as("check isActive").isEqualTo(expected.getIsActive()))
             .satisfies(a -> assertThat(a.getSpecification()).as("check specification").isEqualTo(expected.getSpecification()))
-            .satisfies(a -> assertThat(a.getUserLogin()).as("check userLogin").isEqualTo(expected.getUserLogin()));
+            .satisfies(a -> assertThat(a.getUserUUID()).as("check userUUID").isEqualTo(expected.getUserUUID()));
     }
 
     /**
