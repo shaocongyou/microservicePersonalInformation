@@ -1,6 +1,7 @@
 package com.mycompany.myapp.web.rest;
 
 import com.mycompany.myapp.repository.StandardProceduresRepository;
+import com.mycompany.myapp.security.SecurityUtils;
 import com.mycompany.myapp.service.StandardProceduresService;
 import com.mycompany.myapp.service.dto.StandardProceduresDTO;
 import com.mycompany.myapp.web.rest.errors.BadRequestAlertException;
@@ -11,6 +12,8 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -166,6 +169,32 @@ public class StandardProceduresResource {
         LOG.debug("REST request to get StandardProcedures : {}", id);
         Optional<StandardProceduresDTO> standardProceduresDTO = standardProceduresService.findOne(id);
         return ResponseUtil.wrapOrNotFound(standardProceduresDTO);
+    }
+
+    /**
+     * {@code GET  /standard-procedures/current-user-info} : get the current user's information including UUID and login.
+     *
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body containing user info,
+     *         or with status {@code 401 (Unauthorized)} if user is not authenticated.
+     */
+    @GetMapping("/current-user-info")
+    public ResponseEntity<Map<String, String>> getCurrentUserInfo() {
+        LOG.debug("REST request to get current user info");
+
+        Optional<String> userUuid = SecurityUtils.getCurrentUserUuid();
+        Optional<String> currentUserLogin = SecurityUtils.getCurrentUserLogin();
+
+        if (userUuid.isPresent()) {
+            Map<String, String> userInfo = new HashMap<>();
+            userInfo.put("uuid", userUuid.get());
+            userInfo.put("login", currentUserLogin.orElse("unknown"));
+
+            LOG.debug("Current user info - UUID: {}, Login: {}", userUuid.get(), currentUserLogin.orElse("unknown"));
+            return ResponseEntity.ok(userInfo);
+        } else {
+            LOG.warn("No user found in security context");
+            return ResponseEntity.status(401).build();
+        }
     }
 
     /**
