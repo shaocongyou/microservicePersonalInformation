@@ -84,4 +84,12 @@ public class StandardProceduresServiceImpl implements StandardProceduresService 
         LOG.debug("Request to delete StandardProcedures : {}", id);
         standardProceduresRepository.deleteById(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<StandardProceduresDTO> findAllByUserUuid(String userUuid, Pageable pageable) {
+        LOG.debug("Request to get all StandardProcedures for user UUID : {}", userUuid);
+        return standardProceduresRepository.findByUserUUID(userUuid, pageable)
+            .map(standardProceduresMapper::toDto);
+    }
 }

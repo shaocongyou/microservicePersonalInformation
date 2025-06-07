@@ -55,4 +55,13 @@ public interface StandardProceduresService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    /**
+     * Get all the standardProcedures by user UUID.
+     *
+     * @param userUuid the UUID of the user.
+     * @param pageable the pagination information.
+     * @return the list of entities.
+     */
+    Page<StandardProceduresDTO> findAllByUserUuid(String userUuid, Pageable pageable);
 }

@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -54,6 +55,16 @@ public class StandardProceduresResource {
     }
 
     /**
+     * Get the current user UUID or throw an access denied exception.
+     * @return the current user UUID
+     * @throws AccessDeniedException if user is not authenticated
+     */
+    private String getCurrentUserUuidOrThrow() {
+        return SecurityUtils.getCurrentUserUuid()
+            .orElseThrow(() -> new AccessDeniedException("User not authenticated"));
+    }
+
+    /**
      * {@code POST  /standard-procedures} : Create a new standardProcedures.
      *
      * @param standardProceduresDTO the standardProceduresDTO to create.
@@ -67,7 +78,10 @@ public class StandardProceduresResource {
         if (standardProceduresDTO.getId() != null) {
             throw new BadRequestAlertException("A new standardProcedures cannot already have an ID", ENTITY_NAME, "idexists");
         }
+        String currentUserUuid = getCurrentUserUuidOrThrow();
+        standardProceduresDTO.setUserUUID(currentUserUuid);
         standardProceduresDTO = standardProceduresService.save(standardProceduresDTO);
+        LOG.debug("Created StandardProcedures for user UUID: {}", currentUserUuid);
         return ResponseEntity.created(new URI("/api/standard-procedures/" + standardProceduresDTO.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, standardProceduresDTO.getId().toString()))
             .body(standardProceduresDTO);
@@ -88,7 +102,9 @@ public class StandardProceduresResource {
         @PathVariable(value = "id", required = false) final Long id,
         @Valid @RequestBody StandardProceduresDTO standardProceduresDTO
     ) throws URISyntaxException {
-        LOG.debug("REST request to update StandardProcedures : {}, {}", id, standardProceduresDTO);
+        String currentUserUuid = getCurrentUserUuidOrThrow();
+        LOG.debug("REST request to update StandardProcedures : {}, {} for user UUID: {}", id, standardProceduresDTO, currentUserUuid);
+
         if (standardProceduresDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -96,9 +112,16 @@ public class StandardProceduresResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!standardProceduresRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        // Verify the existing record belongs to current user
+        Optional<StandardProceduresDTO> existingDTO = standardProceduresService.findOne(id);
+        if (existingDTO.isEmpty() || !currentUserUuid.equals(existingDTO.get().getUserUUID())) {
+            LOG.warn("User {} attempted to update StandardProcedures {} belonging to another user",
+                    currentUserUuid, id);
+            return ResponseEntity.status(403).build();
         }
+
+        // Ensure userUUID cannot be modified
+        standardProceduresDTO.setUserUUID(currentUserUuid);
 
         standardProceduresDTO = standardProceduresService.update(standardProceduresDTO);
         return ResponseEntity.ok()
@@ -122,7 +145,10 @@ public class StandardProceduresResource {
         @PathVariable(value = "id", required = false) final Long id,
         @NotNull @RequestBody StandardProceduresDTO standardProceduresDTO
     ) throws URISyntaxException {
-        LOG.debug("REST request to partial update StandardProcedures partially : {}, {}", id, standardProceduresDTO);
+        String currentUserUuid = getCurrentUserUuidOrThrow();
+        LOG.debug("REST request to partial update StandardProcedures partially : {}, {} for user UUID: {}",
+            id, standardProceduresDTO, currentUserUuid);
+
         if (standardProceduresDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
@@ -130,9 +156,16 @@ public class StandardProceduresResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!standardProceduresRepository.existsById(id)) {
-            throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
+        // Verify the existing record belongs to current user
+        Optional<StandardProceduresDTO> existingDTO = standardProceduresService.findOne(id);
+        if (existingDTO.isEmpty() || !currentUserUuid.equals(existingDTO.get().getUserUUID())) {
+            LOG.warn("User {} attempted to update StandardProcedures {} belonging to another user",
+                    currentUserUuid, id);
+            return ResponseEntity.status(403).build();
         }
+
+        // Ensure userUUID cannot be modified
+        standardProceduresDTO.setUserUUID(currentUserUuid);
 
         Optional<StandardProceduresDTO> result = standardProceduresService.partialUpdate(standardProceduresDTO);
 
@@ -152,8 +185,9 @@ public class StandardProceduresResource {
     public ResponseEntity<List<StandardProceduresDTO>> getAllStandardProcedures(
         @org.springdoc.core.annotations.ParameterObject Pageable pageable
     ) {
-        LOG.debug("REST request to get a page of StandardProcedures");
-        Page<StandardProceduresDTO> page = standardProceduresService.findAll(pageable);
+        String currentUserUuid = getCurrentUserUuidOrThrow();
+        LOG.debug("REST request to get a page of StandardProcedures for user UUID: {}", currentUserUuid);
+        Page<StandardProceduresDTO> page = standardProceduresService.findAllByUserUuid(currentUserUuid, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -166,8 +200,16 @@ public class StandardProceduresResource {
      */
     @GetMapping("/{id}")
     public ResponseEntity<StandardProceduresDTO> getStandardProcedures(@PathVariable("id") Long id) {
-        LOG.debug("REST request to get StandardProcedures : {}", id);
+        String currentUserUuid = getCurrentUserUuidOrThrow();
+        LOG.debug("REST request to get StandardProcedures : {} for user UUID: {}", id, currentUserUuid);
         Optional<StandardProceduresDTO> standardProceduresDTO = standardProceduresService.findOne(id);
+
+        if (standardProceduresDTO.isPresent() && !currentUserUuid.equals(standardProceduresDTO.get().getUserUUID())) {
+            LOG.warn("User {} attempted to access StandardProcedures {} belonging to another user",
+                    currentUserUuid, id);
+            return ResponseEntity.status(403).build();
+        }
+
         return ResponseUtil.wrapOrNotFound(standardProceduresDTO);
     }
 
@@ -205,7 +247,16 @@ public class StandardProceduresResource {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStandardProcedures(@PathVariable("id") Long id) {
-        LOG.debug("REST request to delete StandardProcedures : {}", id);
+        String currentUserUuid = getCurrentUserUuidOrThrow();
+        LOG.debug("REST request to delete StandardProcedures : {} for user UUID: {}", id, currentUserUuid);
+
+        Optional<StandardProceduresDTO> existingDTO = standardProceduresService.findOne(id);
+        if (existingDTO.isEmpty() || !currentUserUuid.equals(existingDTO.get().getUserUUID())) {
+            LOG.warn("User {} attempted to delete StandardProcedures {} belonging to another user",
+                    currentUserUuid, id);
+            return ResponseEntity.status(403).build();
+        }
+
         standardProceduresService.delete(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
